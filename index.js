@@ -77,7 +77,9 @@ function summarizeGame(game) {
       const auto = version.autoApproved ? ", no review needed" : "";
       const note = version.reviewNote ? ` Reviewer: "${version.reviewNote}"` : "";
       const stats = version.stats && version.status === "approved"
-        ? ` (${version.stats.plays} plays, ${version.stats.players} players, ${version.stats.finishedRuns} finished runs` +
+        ? ` (${version.stats.plays} plays, ${version.stats.players} players` +
+          `${version.stats.signedInPlayers === undefined ? "" : ` [${version.stats.signedInPlayers} signed in, ${version.stats.networks} networks]`}` +
+          `, ${version.stats.finishedRuns} finished runs` +
           `${version.stats.bestScore === null ? "" : `, best ${version.stats.bestScore}`})`
         : "";
       const warnings = version.checks.filter((check) => !check.ok).map((check) => `${check.label}: ${check.detail ?? "failed"}`);
