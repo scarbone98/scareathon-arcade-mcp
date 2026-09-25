@@ -1,0 +1,36 @@
+{
+  "name": "scareathon-arcade-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for making and submitting games to the Scareathon arcade",
+  "type": "module",
+  "bin": {
+    "scareathon-arcade-mcp": "index.js"
+  },
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "api.js",
+    "auth.js",
+    "credentials.js"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "scareathon",
+    "arcade"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scarbone98/scareathon-arcade-mcp.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.1",
+    "zod": "^4.6.5"
+  }
+}
