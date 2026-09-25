@@ -75,8 +75,12 @@ function summarizeGame(game) {
     ...game.versions.map((version) => {
       const status = version.id === game.liveVersionId ? "live" : version.status;
       const note = version.reviewNote ? ` Reviewer: "${version.reviewNote}"` : "";
+      const stats = version.stats && version.status === "approved"
+        ? ` (${version.stats.plays} plays, ${version.stats.players} players, ${version.stats.finishedRuns} finished runs` +
+          `${version.stats.bestScore === null ? "" : `, best ${version.stats.bestScore}`})`
+        : "";
       const warnings = version.checks.filter((check) => !check.ok).map((check) => `${check.label}: ${check.detail ?? "failed"}`);
-      return `  v${version.version} [${status}] ${version.url}${note}${warnings.length ? `\n    warnings: ${warnings.join("; ")}` : ""}`;
+      return `  v${version.version} [${status}] ${version.url}${stats}${note}${warnings.length ? `\n    warnings: ${warnings.join("; ")}` : ""}`;
     }),
   ];
   return lines.join("\n");
@@ -89,7 +93,7 @@ const server = new McpServer(
       "Tools for making games for the Scareathon arcade (https://www.scareathon.rip/arcade). " +
       "Always call get_arcade_spec first and follow it exactly. Build and host the game (e.g. GitHub Pages), " +
       "run validate_game until it passes, then submit_game. Submissions become drafts that an admin reviews; " +
-      "the author can play drafts at https://www.scareathon.rip/arcade/create. " +
+      "the author can play drafts at https://www.scareathon.rip/profile/developer. " +
       "Everything except get_arcade_spec needs the user signed in: call sign_in, show the user the link and code, " +
       "then call sign_in again with waitSeconds to finish. Never ask the user for a password or token.",
   }
@@ -238,7 +242,7 @@ server.registerTool(
     const draft = game.versions[0];
     return text(
       `Submitted ${game.name} v${draft.version} as a draft.\n` +
-        `The author can play it and follow the review at ${SITE_URL}/arcade/create.\n\n${summarizeGame(game)}`
+        `The author can play it and follow the review at ${SITE_URL}/profile/developer.\n\n${summarizeGame(game)}`
     );
   })
 );
@@ -247,7 +251,9 @@ server.registerTool(
   "list_my_games",
   {
     title: "List my arcade games",
-    description: "Your submitted games with every version's status (draft, live, approved, rejected, replaced) and reviewer notes.",
+    description:
+      "Your submitted games with every version's status (draft, live, approved, rejected, replaced), reviewer notes, " +
+      "and play stats for approved versions.",
     annotations: { readOnlyHint: true },
   },
   tool(async () => {
@@ -260,7 +266,8 @@ server.registerTool(
   "get_game_status",
   {
     title: "Get one game's status",
-    description: "Status, versions, check results and reviewer notes for one of your games, by slug (from list_my_games).",
+    description:
+      "Status, versions, play stats, check results and reviewer notes for one of your games, by slug (from list_my_games).",
     inputSchema: { slug: z.string() },
     annotations: { readOnlyHint: true },
   },

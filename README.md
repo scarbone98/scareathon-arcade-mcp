@@ -49,7 +49,8 @@ The server then gets a token for your account and saves it on your computer, rea
 
 That token:
 - can only submit games and read your own games; it can't spend coins, post, message anyone or change your account.
-- shows up under **Connected AIs** on https://www.scareathon.rip/arcade/create, where you can disconnect it.
+- shows up under **Connected AIs** in the Developer tab of your profile (https://www.scareathon.rip/profile/developer),
+  where you can disconnect it.
 - is revoked when the AI calls `sign_out`.
 
 Only approve a sign-in you just started yourself. If someone sends you a link, decline it.
@@ -64,8 +65,8 @@ Only approve a sign-in you just started yourself. If someone sends you a link, d
 | `get_arcade_spec` | The rules a game must follow: hosting, sandbox, content, the score hookup script and the manifest format. |
 | `validate_game` | Dry run: checks the manifest and the game URL (loads, is HTML, can be framed). Saves nothing. |
 | `submit_game` | Submits as you. A new name makes a new game; one of your games' names makes a new version. Always a draft. |
-| `list_my_games` | Your games, every version's status (draft, live, approved, rejected, replaced) and reviewer notes. |
-| `get_game_status` | One game in detail, by slug. |
+| `list_my_games` | Your games, every version's status (draft, live, approved, rejected, replaced), reviewer notes and play stats. |
+| `get_game_status` | One game in detail, by slug, including plays, players, finished runs and best score per version. |
 
 ## How versions work
 

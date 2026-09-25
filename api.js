@@ -44,7 +44,7 @@ export function createApi({ baseUrl = DEFAULT_API_URL, getToken = () => null, on
     if (response.status === 401 && token) {
       onUnauthorized();
       throw new ScareathonApiError(
-        `Scareathon didn't accept the saved sign-in (it may have been disconnected on ${SITE_URL}/arcade/create). ${NOT_SIGNED_IN}`,
+        `Scareathon didn't accept the saved sign-in (it may have been disconnected in the Developer tab of ${SITE_URL}/profile/developer). ${NOT_SIGNED_IN}`,
         { status: 401, notSignedIn: true }
       );
     }
