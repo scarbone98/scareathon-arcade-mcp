@@ -3,8 +3,8 @@
 Lets your AI make games for the [Scareathon arcade](https://www.scareathon.rip/arcade) and submit them as you.
 
 It's an [MCP](https://modelcontextprotocol.io) server: a small program your AI app (Claude Code, Claude Desktop,
-Cursor, ...) starts in the background, giving the AI a few extra tools. Everything the AI submits is saved as a
-**draft**. Only you and the admins can play it until an admin approves it for the shelf.
+Cursor, ...) starts in the background, giving the AI a few extra tools. A new game goes in as a **draft** that only you
+and the admins can play until an admin approves it for the shelf. After that, updates go live straight away.
 
 ## Setup
 
@@ -64,17 +64,16 @@ Only approve a sign-in you just started yourself. If someone sends you a link, d
 | `whoami` | Which account it's signed in as. |
 | `get_arcade_spec` | The rules a game must follow: hosting, sandbox, content, the score hookup script and the manifest format. |
 | `validate_game` | Dry run: checks the manifest and the game URL (loads, is HTML, can be framed). Saves nothing. |
-| `submit_game` | Submits as you. A new name makes a new game; one of your games' names makes a new version. Always a draft. |
+| `submit_game` | Submits as you. A new name makes a new game (a draft until approved); one of your approved games' names makes a new version that goes live. |
 | `list_my_games` | Your games, every version's status (draft, live, approved, rejected, replaced), reviewer notes and play stats. |
 | `get_game_status` | One game in detail, by slug, including plays, players, finished runs and best score per version. |
 
 ## How versions work
 
-- Every submit is a new **draft** version, and an admin reviews it.
-- Once approved, it's what players get.
-- Submitting an update while a game is live doesn't change what players see: they keep the last approved version
-  until the new one is approved.
-- Submitting again before review replaces the waiting draft.
+- A game needs one admin approval. Its first version is a **draft** until then, and submitting again before review
+  replaces the waiting draft.
+- After that, every update that passes the automated checks goes live on the shelf straight away.
+- If an admin takes a game off the shelf, updates wait for review again.
 
 ## Development
 

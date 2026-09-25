@@ -74,13 +74,14 @@ function summarizeGame(game) {
     live ? `Live on the shelf: v${live.version}` : "Not on the shelf yet",
     ...game.versions.map((version) => {
       const status = version.id === game.liveVersionId ? "live" : version.status;
+      const auto = version.autoApproved ? ", no review needed" : "";
       const note = version.reviewNote ? ` Reviewer: "${version.reviewNote}"` : "";
       const stats = version.stats && version.status === "approved"
         ? ` (${version.stats.plays} plays, ${version.stats.players} players, ${version.stats.finishedRuns} finished runs` +
           `${version.stats.bestScore === null ? "" : `, best ${version.stats.bestScore}`})`
         : "";
       const warnings = version.checks.filter((check) => !check.ok).map((check) => `${check.label}: ${check.detail ?? "failed"}`);
-      return `  v${version.version} [${status}] ${version.url}${stats}${note}${warnings.length ? `\n    warnings: ${warnings.join("; ")}` : ""}`;
+      return `  v${version.version} [${status}${auto}] ${version.url}${stats}${note}${warnings.length ? `\n    warnings: ${warnings.join("; ")}` : ""}`;
     }),
   ];
   return lines.join("\n");
@@ -92,8 +93,8 @@ const server = new McpServer(
     instructions:
       "Tools for making games for the Scareathon arcade (https://www.scareathon.rip/arcade). " +
       "Always call get_arcade_spec first and follow it exactly. Build and host the game (e.g. GitHub Pages), " +
-      "run validate_game until it passes, then submit_game. Submissions become drafts that an admin reviews; " +
-      "the author can play drafts at https://www.scareathon.rip/profile/developer. " +
+      "run validate_game until it passes, then submit_game. A new game is a draft until an admin approves it once; " +
+      "after that, updates go live straight away. The author can play drafts at https://www.scareathon.rip/profile/developer. " +
       "Everything except get_arcade_spec needs the user signed in: call sign_in, show the user the link and code, " +
       "then call sign_in again with waitSeconds to finish. Never ask the user for a password or token.",
   }
@@ -229,21 +230,23 @@ server.registerTool(
 server.registerTool(
   "submit_game",
   {
-    title: "Submit a game (as a draft)",
+    title: "Submit a game",
     description:
-      "Submits the game as the token's owner. A new name creates a new game; the name of one of your games adds a new " +
-      "version. Either way it's saved as a draft for admin review (a waiting draft is replaced); players keep the last " +
-      "approved version until then. Run validate_game first.",
+      "Submits the game as the signed-in user. A new name creates a new game, saved as a draft until an admin approves " +
+      "it (submitting again before then replaces the draft). The name of one of your approved games adds a new version " +
+      "that goes live on the shelf straight away. Run validate_game first.",
     inputSchema: { manifest: manifestSchema },
     annotations: { destructiveHint: false, idempotentHint: false, openWorldHint: true },
   },
   tool(async ({ manifest }) => {
     const game = await api.submit(manifest);
-    const draft = game.versions[0];
-    return text(
-      `Submitted ${game.name} v${draft.version} as a draft.\n` +
-        `The author can play it and follow the review at ${SITE_URL}/profile/developer.\n\n${summarizeGame(game)}`
-    );
+    const version = game.versions[0];
+    const outcome =
+      version.status === "approved"
+        ? `${game.name} v${version.version} is live on the arcade shelf: ${SITE_URL}/arcade?game=${encodeURIComponent(game.name)}`
+        : `Submitted ${game.name} v${version.version} as a draft; an admin reviews it before it goes on the shelf.\n` +
+          `The author can play it and follow the review at ${SITE_URL}/profile/developer.`;
+    return text(`${outcome}\n\n${summarizeGame(game)}`);
   })
 );
 
